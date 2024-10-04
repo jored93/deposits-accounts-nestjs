@@ -15,7 +15,7 @@ export class Deposit {
         });
     }
 
-    toPrimitives(): PrimitiveDeposit {
+    toValue(): PrimitiveDeposit {
         return {
             id: this.attributes.id,
             amount: this.attributes.amount,
