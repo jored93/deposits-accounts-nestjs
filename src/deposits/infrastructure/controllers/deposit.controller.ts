@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query, Post } from '@nestjs/common';
 import { GetAllDepositsUseCase } from '../../application/use-cases/get-all-deposits.use-case';
 import { GetDepositByIdUseCase } from '../../application/use-cases/get-deposit-by-id.use-case';
 import { GetDepositsByAccountIdUseCase } from '../../application/use-cases/get-deposits-by-account-id.use-case';
@@ -13,22 +13,27 @@ export class DepositController {
         private readonly getDepositsByDateRangeUseCase: GetDepositsByDateRangeUseCase,
     ) { }
 
-    @Get()
+    @Post('/create')
+    async createDeposit(/* @Body() createDepositDto: CreateDepositDto */) {
+        // Implement creating deposit logic
+    }
+
+    @Get('get-all')
     async getAllDeposits() {
         return this.getAllDepositsUseCase.execute();
     }
 
-    @Get(':id')
+    @Get('get-by-id/:id')
     async getDepositById(@Param('id') id: string) {
         return this.getDepositByIdUseCase.execute(id);
     }
 
-    @Get('account/:accountId')
+    @Get('get-by-account/:accountId')
     async getDepositsByAccountId(@Param('accountId') accountId: string) {
         return this.getDepositsByAccountIdUseCase.execute(accountId);
     }
 
-    @Get('date-range')
+    @Get('get-by-date-range')
     async getDepositsByDateRange(
         @Query('startDate') startDate: string,
         @Query('endDate') endDate: string,
