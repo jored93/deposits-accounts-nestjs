@@ -1,8 +1,16 @@
-import { Controller, Get, Param, Query, Post } from '@nestjs/common';
+import { Controller, Get, Param, Query, Body, Post } from '@nestjs/common';
+import { Deposit } from '../../domain/entities/deposit.entity';
+import { RegisterDepositUseCase } from '../../application/use-cases/register-deposit.use-case';
 import { GetAllDepositsUseCase } from '../../application/use-cases/get-all-deposits.use-case';
 import { GetDepositByIdUseCase } from '../../application/use-cases/get-deposit-by-id.use-case';
 import { GetDepositsByAccountIdUseCase } from '../../application/use-cases/get-deposits-by-account-id.use-case';
 import { GetDepositsByDateRangeUseCase } from '../../application/use-cases/get-deposits-by-date-range.use-case';
+
+
+class CreateDepositDto {
+    accountId: string;
+    amount: number;
+}
 
 @Controller('deposits')
 export class DepositController {
@@ -11,11 +19,13 @@ export class DepositController {
         private readonly getDepositByIdUseCase: GetDepositByIdUseCase,
         private readonly getDepositsByAccountIdUseCase: GetDepositsByAccountIdUseCase,
         private readonly getDepositsByDateRangeUseCase: GetDepositsByDateRangeUseCase,
+        private readonly registerDepositUseCase: RegisterDepositUseCase,
     ) { }
 
-    @Post('/create')
-    async createDeposit(/* @Body() createDepositDto: CreateDepositDto */) {
-        // Implement creating deposit logic
+    @Post('register')
+    async createDeposit(@Body() createDepositDto: CreateDepositDto): Promise<Deposit> {
+        const { accountId, amount } = createDepositDto;
+        return this.registerDepositUseCase.execute(accountId, amount);
     }
 
     @Get('get-all')

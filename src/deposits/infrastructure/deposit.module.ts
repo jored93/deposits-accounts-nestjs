@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DepositController } from './controllers/deposit.controller';
 import { DepositRepositoryImpl } from './database/deposit.repository.impl';
 import { DepositOrmEntity } from './database/entities/deposit.orm-entity';
+import { RegisterDepositUseCase } from '../application/use-cases/register-deposit.use-case';
 import { GetAllDepositsUseCase } from '../application/use-cases/get-all-deposits.use-case';
 import { GetDepositByIdUseCase } from '../application/use-cases/get-deposit-by-id.use-case';
 import { GetDepositsByAccountIdUseCase } from '../application/use-cases/get-deposits-by-account-id.use-case';
@@ -14,6 +15,7 @@ import { GetDepositsByDateRangeUseCase } from '../application/use-cases/get-depo
     ],
     controllers: [DepositController],
     providers: [
+        RegisterDepositUseCase,
         GetAllDepositsUseCase,
         GetDepositByIdUseCase,
         GetDepositsByAccountIdUseCase,
