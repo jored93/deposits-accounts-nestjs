@@ -1,31 +1,55 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, Between } from 'typeorm';
 import { Deposit } from '../../domain/entities/deposit.entity';
+import { DepositOrmEntity } from './entities/deposit.orm-entity';
 import { DepositRepository } from '../../domain/repositories/deposit.repository';
+import { DepositMapper } from './deposit.mapper';
 
 @Injectable()
 export class DepositRepositoryImpl implements DepositRepository {
-    private deposits: Deposit[] = [];
+    constructor(
+        @InjectRepository(DepositOrmEntity)
+        private readonly depositRepository: Repository<DepositOrmEntity>,
+    ) { }
 
     async save(deposit: Deposit): Promise<Deposit> {
-        this.deposits.push(deposit);
-        return deposit;
+        const ormEntity = DepositMapper.toOrmEntity(deposit);
+        const savedEntity = await this.depositRepository.save(ormEntity);
+        return DepositMapper.toDomainEntity(savedEntity);
     }
 
     async findById(id: string): Promise<Deposit | null> {
-        return this.deposits.find(deposit => deposit.id === id) || null;
+        const ormEntity = await this.depositRepository.findOneBy({ id });
+        return ormEntity ? DepositMapper.toDomainEntity(ormEntity) : null;
     }
 
     async findAll(): Promise<Deposit[]> {
-        return this.deposits;
+        const ormEntities = await this.depositRepository.find();
+        return ormEntities.map(ormEntity => DepositMapper.toDomainEntity(ormEntity));
     }
 
     async findByAccountId(accountId: string): Promise<Deposit[]> {
-        return this.deposits.filter(deposit => deposit.accountId === accountId);
+        // Usa el método `find` para obtener todos los registros que coincidan con el `accountId`
+        const ormEntities = await this.depositRepository.find({
+            where: { accountId }, // Usar el parámetro `where` para especificar la condición
+        });
+
+        // Mapear cada entidad ORM a una entidad de dominio
+        return ormEntities.map(ormEntity => DepositMapper.toDomainEntity(ormEntity));
     }
 
+
     async findByDateRange(startDate: Date, endDate: Date): Promise<Deposit[]> {
-        return this.deposits.filter(
-            deposit => deposit.createdAt >= startDate && deposit.createdAt <= endDate,
-        );
+        // Usar `find` con la condición `createdAt` entre el rango de fechas
+        const ormEntities = await this.depositRepository.find({
+            where: {
+                createdAt: Between(startDate, endDate), // Usar `Between` para especificar el rango de fechas
+            },
+        });
+
+        // Mapear cada entidad ORM a una entidad de dominio
+        return ormEntities.map(ormEntity => DepositMapper.toDomainEntity(ormEntity));
     }
+
 }
